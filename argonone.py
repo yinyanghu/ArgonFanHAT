@@ -38,22 +38,32 @@ class Config:
             raise ValueError(
                 "value of 'mode' must be 'balanced', 'quiet', or 'performance'")
 
+    def temperature(self):
+        return self.config["temperature"]
+
+    def idle_temperature_limit(self):
+        return self.config["idle_temperature_limit"]
+
     def idle_fan_speed(self):
         return self.config["idle_fan_speed"] if "idle_fan_speed" in self.config else 0
 
+    def min_set_fan_speed(self):
+        return self.config["temperature"][-1]["fan_speed"]
+
     def fan_speed(self, temperature):
         if self.is_balanced():
-            for item in self.config["temperature"]:
+            for item in self.temperature():
                 if item["start_temperature"] >= temperature:
                     return item["fan_speed"]
             return self.idle_fan_speed()
         elif self.is_quiet():
-            for item in self.config["temperature"]:
+            for item in self.temperature():
                 if item["start_temperature"] >= temperature:
                     return item["fan_speed"]
-            return self.idle_fan_speed() if temperature <= self.config[
-                "idle_temperature_limit"] else self.config["temperature"][
-                -1]["fan_speed"]
+            if temperature <= self.idle_temperature_limit():
+                return self.idle_fan_speed()
+            else:
+                return self.min_set_fan_speed()
         elif self.is_performance():
             return 100
         else:
