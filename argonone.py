@@ -6,6 +6,7 @@ import os
 import psutil
 import subprocess
 import time
+from threading import Thread
 
 CONFIG_FILE = "config.yaml"
 SLEEP_INTERVAL = 10
@@ -72,6 +73,7 @@ class Config:
 
 class PiHardware:
     FAN_SPEED_BUS_ADDRESS = 0x1a
+    SHUTDOWN_PIN = 4
 
     def __init__(self):
         if GPIO.RPI_REVISION in [2, 3]:
@@ -80,6 +82,7 @@ class PiHardware:
             self.bus = smbus.SMBus(0)
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self.SHUTDOWN_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
     def temperature(self):
         return max(self.cpu_temperature(), self.gpu_temperature())
@@ -98,8 +101,17 @@ class PiHardware:
     def set_fan_speed(self, percent):
         self.bus.write_byte(self.FAN_SPEED_BUS_ADDRESS, percent)
 
+    def button_pulse_time(self):
+        pulse_time = 1
+        GPIO.write_for_edge(self.SHUTDOWN_PIN, GPIO.RISING)
+        time.sleep(0.01)
+        while GPIO.input(self.SHUTDOWN_PIN) == GPIO.HIGH:
+            time.sleep(0.01)
+            pulse_time += 1
+        return pulse_time
 
-def start_fan_service(pi, config):
+
+def fan_service(pi, config):
     print(pi.cpu_temperature())
     fan_speed = config.idle_fan_speed()
     pi.set_fan_speed(fan_speed)
@@ -109,27 +121,26 @@ def start_fan_service(pi, config):
         time.sleep(SLEEP_INTERVAL)
 
 
-def start_button_service():
-    pass
-
-
-def stop_fan_service():
-    pass
-
-
-def stop_button_service():
-    pass
+def button_service(pi):
+    while True:
+        pulse_time = pi.button_pulse_time()
+        if 2 <= pulse_time <= 3:
+            os.system("reboot")
+        elif 4 <= pulse_time <= 5:
+            os.system("shutdown now -h")
 
 
 def main():
     config = Config(CONFIG_FILE)
     pi = PiHardware()
+    thread_fan = Thread(target=fan_service, args=(pi, config))
+    thread_button = Thread(target=button_service, args=(pi))
     try:
-        start_fan_service(pi, config)
-        start_button_service()
+        thread_fan.start()
+        thread_button.start()
     except:
-        stop_fan_service()
-        stop_button_service()
+        thread_fan.stop()
+        thread_button.stop()
     finally:
         GPIO.cleanup()
 
