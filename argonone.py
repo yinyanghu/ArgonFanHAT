@@ -3,15 +3,18 @@ import RPi.GPIO as GPIO
 import yaml
 
 import argparse
+import logging
 import os
 import psutil
 import subprocess
 import time
 from threading import Thread
 
-# CONFIG_FILE = "config.yaml"
 DEFAULT_CONFIG_FILE = "/etc/argonone/config.yaml"
 SLEEP_INTERVAL = 10
+
+log = logging.getLogger("argonone")
+log.setLevel(logging.WARNING)
 
 
 class Config:
@@ -134,9 +137,19 @@ def button_service(pi):
 def main():
     parser = argparse.ArgumentParser(
         prog="argonone", description="Argon Fan HAT driver")
-    parser.add_argument("-c", "--config", default=DEFAULT_CONFIG_FILE)
+    parser.add_argument(
+        "-c", "--config", default=DEFAULT_CONFIG_FILE,
+        help="specify config file")
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", default=False,
+        help="enable verbose output")
     args = parser.parse_args()
 
+    logging.basicConfig(level=logging.INFO)
+    if args.verbose:
+        log.setLevel(logging.INFO)
+
+    log.info("loading config file {}".format(os.path.abspath(args.config)))
     config = Config(args.config)
     pi = PiHardware()
     thread_fan = Thread(target=fan_service, args=(pi, config))
