@@ -2,15 +2,16 @@ import smbus
 import RPi.GPIO as GPIO
 import yaml
 
+import argparse
 import os
 import psutil
 import subprocess
 import time
 from threading import Thread
 
-CONFIG_FILE = "config.yaml"
+# CONFIG_FILE = "config.yaml"
+DEFAULT_CONFIG_FILE = "/etc/argonone/config.yaml"
 SLEEP_INTERVAL = 10
-# CONFIG_FILE = "/etc/argonone/config.yaml"
 
 
 class Config:
@@ -131,7 +132,12 @@ def button_service(pi):
 
 
 def main():
-    config = Config(CONFIG_FILE)
+    parser = argparse.ArgumentParser(
+        prog="argonone", description="Argon Fan HAT driver")
+    parser.add_argument("-c", "--config", default=DEFAULT_CONFIG_FILE)
+    args = parser.parse_args()
+
+    config = Config(args.config)
     pi = PiHardware()
     thread_fan = Thread(target=fan_service, args=(pi, config))
     thread_button = Thread(target=button_service, args=(pi))
