@@ -115,22 +115,35 @@ class PiHardware:
         return pulse_time
 
 
-def fan_service(pi, config):
-    print(pi.cpu_temperature())
+def fan_service(pi, config, verbose):
+    log.info(
+        "starting fan service, current temperature: {}".format(
+            pi.temperature()))
     fan_speed = config.idle_fan_speed()
-    pi.set_fan_speed(fan_speed)
+    if verbose:
+        log.info("set fan speed to {}%".format(fan_speed))
+    pi.set_fan_speed(fan_speed, verbose)
     while True:
-        next_fan_speed = config.fan_speed(pi.temperature())
+        temperature = pi.temperature()
+        next_fan_speed = config.fan_speed(temperature)
+        if verbose:
+            log.info(
+                "current temperature: {}, set fan speed to {}%".format(
+                    temperature, next_fan_speed))
         pi.set_fan_speed(next_fan_speed)
         time.sleep(SLEEP_INTERVAL)
 
 
-def button_service(pi):
+def button_service(pi, verbose):
     while True:
         pulse_time = pi.button_pulse_time()
         if 2 <= pulse_time <= 3:
+            if verbose:
+                log.info("button pressed for rebooting the system")
             os.system("reboot")
         elif 4 <= pulse_time <= 5:
+            if verbose:
+                log.info("button pressed for shutting down the system")
             os.system("shutdown now -h")
 
 
@@ -152,8 +165,8 @@ def main():
     log.info("loading config file {}".format(os.path.abspath(args.config)))
     config = Config(args.config)
     pi = PiHardware()
-    thread_fan = Thread(target=fan_service, args=(pi, config))
-    thread_button = Thread(target=button_service, args=(pi))
+    thread_fan = Thread(target=fan_service, args=(pi, config, args.verbose))
+    thread_button = Thread(target=button_service, args=(pi, args.verbose))
     try:
         thread_fan.start()
         thread_button.start()
