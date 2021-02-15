@@ -174,6 +174,7 @@ def main():
         thread_fan.stop()
         thread_button.stop()
     finally:
+        pi.set_fan_speed(config.idle_fan_speed())
         GPIO.cleanup()
 
 
