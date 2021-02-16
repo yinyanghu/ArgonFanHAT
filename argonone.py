@@ -25,7 +25,6 @@ class Config:
 
         self.config["temperature"].sort(
             key=lambda x: x["start_temperature"], reverse=True)
-        print(self.config)
 
     def is_balanced(self):
         return self.config["mode"] == "balanced"
@@ -107,7 +106,7 @@ class PiHardware:
 
     def button_pulse_time(self):
         pulse_time = 1
-        GPIO.write_for_edge(self.SHUTDOWN_PIN, GPIO.RISING)
+        GPIO.wait_for_edge(self.SHUTDOWN_PIN, GPIO.RISING)
         time.sleep(0.01)
         while GPIO.input(self.SHUTDOWN_PIN) == GPIO.HIGH:
             time.sleep(0.01)
