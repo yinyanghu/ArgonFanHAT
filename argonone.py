@@ -121,7 +121,7 @@ def fan_service(pi, config, verbose):
     fan_speed = config.idle_fan_speed()
     if verbose:
         log.info("set fan speed to {}%".format(fan_speed))
-    pi.set_fan_speed(fan_speed, verbose)
+    pi.set_fan_speed(fan_speed)
     while True:
         temperature = pi.temperature()
         next_fan_speed = config.fan_speed(temperature)
