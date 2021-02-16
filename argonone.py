@@ -176,8 +176,6 @@ def main():
     except Exception as e:
         log.warning("Unexpected error: {}".format(e.message))
     finally:
-        thread_fan.stop()
-        thread_button.stop()
         log.info(
             "exiting and setting fan speed to idle speed {}%".format(
                 config.idle_fan_speed()))
