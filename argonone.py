@@ -60,7 +60,7 @@ class Config:
     def fan_speed(self, temperature):
         if self.is_balanced():
             for item in self.temperature():
-                if item["start_temperature"] >= temperature:
+                if item["start_temperature"] <= temperature:
                     return item["fan_speed"]
             return self.idle_fan_speed()
         elif self.is_quiet():
