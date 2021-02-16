@@ -26,6 +26,9 @@ class Config:
         self.config["temperature"].sort(
             key=lambda x: x["start_temperature"], reverse=True)
 
+    def mode(self):
+        return self.config["mode"]
+
     def is_balanced(self):
         return self.config["mode"] == "balanced"
 
@@ -115,6 +118,7 @@ class PiHardware:
 
 
 def fan_service(pi, config, verbose):
+    log.info("mode: {}".format(config.mode()))
     log.info(
         "starting fan service, current temperature: {}".format(
             pi.temperature()))
