@@ -1,6 +1,8 @@
 mode: balanced
-idle_fan_speed: 10
+idle_fan_speed: 1
 temperature:
+  - start_temperature: 36
+    fan_speed: 10
   - start_temperature: 40
     fan_speed: 20
   - start_temperature: 45
