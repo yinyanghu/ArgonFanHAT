@@ -173,10 +173,14 @@ def main():
     try:
         thread_fan.start()
         thread_button.start()
-    except:
+    except Exception as e:
+        log.warning("Unexpected error: {}".format(e.message))
+    finally:
         thread_fan.stop()
         thread_button.stop()
-    finally:
+        log.info(
+            "exiting and setting fan speed to idle speed {}%".format(
+                config.idle_fan_speed()))
         pi.set_fan_speed(config.idle_fan_speed())
         GPIO.cleanup()
 
