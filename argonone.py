@@ -6,7 +6,9 @@ import argparse
 import logging
 import os
 import psutil
+import signal
 import subprocess
+import sys
 import time
 from threading import Thread
 
@@ -150,6 +152,13 @@ def button_service(pi, verbose):
             os.system("shutdown now -h")
 
 
+def safe_exit(signum, frame):
+    log.info("exiting and setting fan speed to 0")
+    PiHardware().set_fan_speed(0)
+    GPIO.cleanup()
+    sys.exit(0)
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="argonone", description="Argon Fan HAT driver")
@@ -180,21 +189,14 @@ def main():
 
     log.info("loading config file {}".format(os.path.abspath(args.config)))
     config = Config(args.config)
+
+    signal.signal(signal.SIGINT, safe_exit)
+
     thread_fan = Thread(target=fan_service, args=(pi, config, args.verbose))
     thread_button = Thread(target=button_service, args=(pi, args.verbose))
-    try:
-        thread_fan.start()
-        thread_button.start()
-    except KeyboardInterrupt:
-        log.info("exiting")
-    except Exception as e:
-        log.error("unexpected error: {}".format(e.message))
-    finally:
-        log.info(
-            "setting fan speed to idle speed {}%".format(
-                config.idle_fan_speed()))
-        pi.set_fan_speed(config.idle_fan_speed())
-        GPIO.cleanup()
+
+    thread_fan.start()
+    thread_button.start()
 
 
 if __name__ == "__main__":
