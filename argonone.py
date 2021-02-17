@@ -156,6 +156,8 @@ def main():
     parser.add_argument(
         "-c", "--config", default=DEFAULT_CONFIG_FILE,
         help="specify config file")
+    parser.add_argument("-f", "--force-speed", default=None, type=int,
+                        help="force set fan speed (0-100)")
     parser.add_argument(
         "-v", "--verbose", action="store_true", default=False,
         help="enable verbose output")
@@ -165,9 +167,18 @@ def main():
     if args.verbose:
         log.setLevel(logging.INFO)
 
+    pi = PiHardware()
+
+    if not args.force_speed is None:
+        if 0 <= args.force_speed <= 100:
+            log.info("forcing fan speed to speed {}%".format(args.force_speed))
+            pi.set_fan_speed(args.force_speed)
+        else:
+            log.error("please give a valid fan speed")
+        return
+
     log.info("loading config file {}".format(os.path.abspath(args.config)))
     config = Config(args.config)
-    pi = PiHardware()
     thread_fan = Thread(target=fan_service, args=(pi, config, args.verbose))
     thread_button = Thread(target=button_service, args=(pi, args.verbose))
     try:
@@ -176,7 +187,7 @@ def main():
     except KeyboardInterrupt:
         log.info("exiting")
     except Exception as e:
-        log.warning("Unexpected error: {}".format(e.message))
+        log.error("unexpected error: {}".format(e.message))
     finally:
         log.info(
             "setting fan speed to idle speed {}%".format(
