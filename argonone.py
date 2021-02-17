@@ -175,6 +175,7 @@ def main():
             pi.set_fan_speed(args.force_speed)
         else:
             log.error("please give a valid fan speed")
+        GPIO.cleanup()
         return
 
     log.info("loading config file {}".format(os.path.abspath(args.config)))
