@@ -15,6 +15,10 @@ from threading import Thread
 DEFAULT_CONFIG_FILE = "/etc/argonone/config.yaml"
 SLEEP_INTERVAL = 10
 
+logging.basicConfig(
+    format="%(asctime)s %(levelname)-8s %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    level=logging.INFO)
 log = logging.getLogger("argonone")
 log.setLevel(logging.WARNING)
 
@@ -173,7 +177,6 @@ def main():
         help="enable verbose output")
     args = parser.parse_args()
 
-    logging.basicConfig(level=logging.INFO)
     if args.verbose:
         log.setLevel(logging.INFO)
 
