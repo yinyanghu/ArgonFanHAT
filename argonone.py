@@ -194,9 +194,14 @@ def main():
 
     thread_fan = Thread(target=fan_service, args=(pi, config, args.verbose))
     thread_button = Thread(target=button_service, args=(pi, args.verbose))
+    thread_fan.daemon = True
+    thread_button.daemon = True
 
     thread_fan.start()
     thread_button.start()
+
+    thread_fan.join()
+    thread_button.join()
 
 
 if __name__ == "__main__":
