@@ -126,14 +126,14 @@ def fan_service(pi, config, verbose):
             pi.temperature()))
     fan_speed = config.idle_fan_speed()
     if verbose:
-        log.info("set fan speed to {}%".format(fan_speed))
+        log.info("setting fan speed to {}%".format(fan_speed))
     pi.set_fan_speed(fan_speed)
     while True:
         temperature = pi.temperature()
         next_fan_speed = config.fan_speed(temperature)
         if verbose:
             log.info(
-                "current temperature: {}, set fan speed to {}%".format(
+                "current temperature: {}, setting fan speed to {}%".format(
                     temperature, next_fan_speed))
         pi.set_fan_speed(next_fan_speed)
         time.sleep(SLEEP_INTERVAL)
@@ -153,7 +153,8 @@ def button_service(pi, verbose):
 
 
 def safe_exit(signum, frame):
-    log.info("exiting and setting fan speed to 0")
+    log.info("exiting")
+    log.info("setting fan speed to 0")
     PiHardware().set_fan_speed(0)
     GPIO.cleanup()
     sys.exit(0)
