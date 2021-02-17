@@ -192,6 +192,8 @@ def main():
     config = Config(args.config)
 
     signal.signal(signal.SIGINT, safe_exit)
+    signal.signal(signal.SIGKILL, safe_exit)
+    signal.signal(signal.SIGTERM, safe_exit)
 
     thread_fan = Thread(target=fan_service, args=(pi, config, args.verbose))
     thread_button = Thread(target=button_service, args=(pi, args.verbose))
