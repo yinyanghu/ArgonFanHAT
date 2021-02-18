@@ -1,4 +1,4 @@
-import smbus
+from smbus2 import SMBus
 import RPi.GPIO as GPIO
 import yaml
 
@@ -89,9 +89,9 @@ class PiHardware:
 
     def __init__(self):
         if GPIO.RPI_REVISION in [2, 3]:
-            self.bus = smbus.SMBus(1)
+            self.bus = SMBus(1)
         else:
-            self.bus = smbus.SMBus(0)
+            self.bus = SMBus(0)
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.SHUTDOWN_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
