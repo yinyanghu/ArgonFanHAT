@@ -1,6 +1,6 @@
 #!/bin/bash
 
-git clone https://github.com/yinyanghu/ArgonFanHAT.git /tmp
+git clone https://github.com/yinyanghu/ArgonFanHAT.git /tmp/ArgonFanHAT
 
 pip install smbus2 RPi.GPIO psutil
 
