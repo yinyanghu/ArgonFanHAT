@@ -19,3 +19,4 @@ systemctl enable argonone.service
 systemctl start argonone.service
 
 rm -rf "$basedir"
+echo "Argon fan daemon is installed!"
