@@ -111,7 +111,10 @@ class PiHardware:
         return float(output.replace('temp=', '').replace('\'C\n', ''))
 
     def set_fan_speed(self, percent):
-        self.bus.write_byte(self.FAN_SPEED_BUS_ADDRESS, percent)
+        try:
+            self.bus.write_byte(self.FAN_SPEED_BUS_ADDRESS, percent)
+        except OSError:
+            pass
 
     def button_pulse_time(self):
         pulse_time = 1
