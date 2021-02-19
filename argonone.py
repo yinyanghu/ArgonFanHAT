@@ -114,7 +114,7 @@ class PiHardware:
         try:
             self.bus.write_byte(self.FAN_SPEED_BUS_ADDRESS, percent)
         except OSError:
-            pass
+            log.error("cannot set fan speed, recovered from the exception")
 
     def button_pulse_time(self):
         pulse_time = 1
