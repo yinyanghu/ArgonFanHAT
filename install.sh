@@ -5,7 +5,7 @@ basedir="/tmp/ArgonFanHAT"
 rm -rf "$basedir"
 git clone https://github.com/yinyanghu/ArgonFanHAT.git "$basedir"
 
-pip install smbus2 RPi.GPIO psutil
+pip3 install smbus2 RPi.GPIO psutil
 
 mkdir -p /etc/argonone
 cp "$basedir/config.yaml" /etc/argonone/
